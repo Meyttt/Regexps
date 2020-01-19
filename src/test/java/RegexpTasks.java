@@ -57,8 +57,8 @@ public class RegexpTasks {
         Assert.assertEquals(getResult("ben@mail.com",pattern), "[ben@mail.com]");
         Assert.assertEquals("[ben.msf@mail.com]",getResult("ben.msf@mail.com",pattern));
         Assert.assertEquals("[ben.msf@test.mail].",getResult("ben.msf@test.mail.",pattern));
-        Assert.assertEquals("[ben.msf@test.mail.com]",getResult("ben.msf@test.mail.com",pattern));
-        Assert.assertEquals(".[msf@test.mail.com]",getResult(".msf@test.mail.com",pattern));
+        Assert.assertEquals("[ben.msf@test.mail].com",getResult("ben.msf@test.mail.com",pattern));
+        Assert.assertEquals(".[msf@test.mail].com",getResult(".msf@test.mail.com",pattern));
         Assert.assertTrue(isEmptyResult(getResult("ben.@mail.com",pattern)));
         Assert.assertTrue(isEmptyResult(getResult("ben@.mail.com",pattern)));
     }
@@ -101,7 +101,7 @@ public class RegexpTasks {
     public void multiRowsTest2(){
         String pattern = "(?m).*$";
         String inputText = "test\ntest1\ntest2\n";
-        Assert.assertEquals(getResult(inputText, pattern), "[test]\ntest1\ntest2\n");
+        Assert.assertEquals(getResult(inputText, pattern), "[test]\n[test1]\n[test2]\n");
         pattern = ".*$";
         Assert.assertEquals(getResult(inputText, pattern), "test\ntest1\n[test2]\n");
         pattern = "(?m)^test1.*$";
@@ -176,37 +176,17 @@ public class RegexpTasks {
                         "<h3>Java 13 is now released</h4>");
     }
 
-    @Test
-    public void backAndForwardReviews(){
-        String inputText = "I paid $30 for 100 apples, " +
-                "50 oranges, and 60 pearls. " +
-                "I saved $5 on this order.";
-        String pattern = "\\b(?<!$)\\d+\\b";
-//        String pattern = "(?<=\\$)\\d+";
-        LazyMatchFormatter lazyMatchFormatter = new LazyMatchFormatter(inputText, pattern);
-        System.out.println(lazyMatchFormatter.format());
-//        Assert.assertEquals(lazyMatchFormatter.format(), "I paid $[30] for 100 apples," +
-//                "50 oranges, and 60 pearls." +
-//                "I saved $5 on this order.");
-    }
-
-    @Test
-    public void matcherPosTest(){
-        Pattern pattern = Pattern.compile("\\b(?<!$)\\d+\\b");
-        String input = "I paid $50 for 100 apples";
-        Matcher matcher = pattern.matcher(input);
-        System.out.println();
-        for(int i=0; i<input.length(); i++){
-            System.out.println(i + ": "+ matcher.find(i));
-        }
-    }
 
     @Test
     public void posMatcherTest(){
-        Pattern pattern = Pattern.compile("\\b(?<!$)\\d+\\b");
-        String input = "I paid $50 for 100 apples";
-        PosGreedyMatchFormatter posGreedyMatchFormatter = new PosGreedyMatchFormatter(input, "\\b(?<!$)\\d+\\b");
+        String input = "I paid $50 for 100 apples and 10$ paid later";
+        String pattern = "\\b(?<!\\$)\\d+(?!\\$)\\b";
+        PosGreedyMatchFormatter posGreedyMatchFormatter = new PosGreedyMatchFormatter(input, pattern);
         System.out.println(posGreedyMatchFormatter.format());
+        pattern = "\\bpaid\\b";
+        posGreedyMatchFormatter = new PosGreedyMatchFormatter(input, pattern);
+        System.out.println(posGreedyMatchFormatter.format());
+
 
     }
 
@@ -216,11 +196,11 @@ public class RegexpTasks {
         return new String(Files.readAllBytes(Paths.get(fileName)));
     }
     private String getResult(String input, String regExp){
-        GreedyMatchFormatter formatter = new GreedyMatchFormatter(input, regExp);
+        PosGreedyMatchFormatter formatter = new PosGreedyMatchFormatter(input, regExp);
         return formatter.format();
     }
     private String getResult(String input, String regExp, int flags){
-        GreedyMatchFormatter formatter = new GreedyMatchFormatter(input, regExp, flags);
+        PosGreedyMatchFormatter formatter = new PosGreedyMatchFormatter(input, regExp, flags);
         return formatter.format();
     }
     private boolean isEmptyResult(String result){

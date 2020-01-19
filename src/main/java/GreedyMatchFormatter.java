@@ -9,7 +9,7 @@ public class GreedyMatchFormatter implements MatchFormatter{
     private String root;
     private String suffix;
 
-    public GreedyMatchFormatter(String regExp, String input, int flags) {
+    public GreedyMatchFormatter(String input, String regExp, int flags) {
         this.pattern = Pattern.compile(regExp, flags);
 
         prefix = "";
@@ -17,7 +17,7 @@ public class GreedyMatchFormatter implements MatchFormatter{
         suffix = "";
     }
 
-    public GreedyMatchFormatter(String regExp, String input) {
+    public GreedyMatchFormatter(String input, String regExp) {
         this.pattern = Pattern.compile(regExp);
 
         prefix = "";
